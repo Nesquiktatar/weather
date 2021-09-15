@@ -3,7 +3,7 @@ import './App.css';
 import CitySearch from './components/citySearch/citySearch';
 import WeatherInfo from './components/weatherInfo/weatherInfo';
 
-const API_KEY = "4e7dee7dc7a1ddd69a7b39e933df73b8";
+const API_KEY = "e268ba99b1259f6b44a8711be5a5815f   ";
 
 class App extends React.Component {
 
@@ -20,6 +20,41 @@ class App extends React.Component {
 
 
     getWeather = async (event) => {
+        event.preventDefault(); //уничтожаем стандартное поведение страничек-перезагрузка
+        const cityName = event.target.elements.city.value;
+
+
+        if (cityName) {
+            const api_url = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${API_KEY}`);
+            const data = await api_url.json();
+            console.log(data) ;
+
+            let sunset=data.sys.sunset;
+            let date = new Date();
+            date.setTime(sunset);
+            let sunset_date = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
+            this.setState({
+                temp: data.main.temp,
+                city: data.name,
+                country: data.sys.country,
+                pressure: data.main.pressure,
+                sunset: sunset_date,
+                error: undefined
+            });
+        } else{
+            this.setState({
+                temp: undefined,
+                city: undefined,
+                country: undefined,
+                pressure: undefined,
+                sunset: undefined,
+                error: "Введите название города"
+            })
+        }
+    };
+
+    getWeatherGismeteo = async (event) => {
         event.preventDefault(); //уничтожаем стандартное поведение страничек-перезагрузка
         const cityName = event.target.elements.city.value;
 
@@ -61,7 +96,6 @@ class App extends React.Component {
             <div className="App">
                 <header className="App-header">
                     <div>
-                        <div>time + data</div>
                         <CitySearch  getWeather={this.getWeather}/>
                         <WeatherInfo
                             temp={this.state.temp}
